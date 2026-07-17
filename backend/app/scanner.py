@@ -42,3 +42,38 @@ def scan_mfa():
             })
             
     return findings
+
+def scan_admin_access():
+    iam = get_iam_client()
+
+    response = iam.list_users()
+
+    users = []
+    for iam_user in response["Users"]:
+        admin_found = False
+
+        scan_policy = iam.list_attached_user_policies(
+            UserName=iam_user["UserName"]
+        )
+
+        for policy in scan_policy["AttachedPolicies"]:
+            if policy["PolicyName"] == "AdministratorAccess":
+                admin_found = True
+                break  
+
+        if admin_found:
+            users.append({
+                "username": iam_user["UserName"],
+                "risk": "CRITICAL",
+                "finding": "AdministratorAccess attached",
+                "recommendation": "Remove AdministratorAccess unless absolutely required."
+            })
+        else:
+            users.append({
+                "username": iam_user["UserName"],
+                "risk": "LOW",
+                "finding": "AdministratorAccess not attached",
+                "recommendation": "No action required."
+            })
+
+    return users

@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.scanner import list_iam_users
+from app.scanner import list_iam_users, scan_admin_access
 from app.scanner import scan_mfa
 
 app = FastAPI()
@@ -19,3 +19,7 @@ def scan_iam():
 @app.get("/scan/mfa")
 def scan_mfa_endpoint():
     return scan_mfa()
+
+@app.get("/scan/admin-access")
+def scan_admin_access_endpoint():
+    return scan_admin_access()
